@@ -1,6 +1,7 @@
 networks:
   backend:
-  frontend:
+  caddy:
+    external: true
 
 
 secrets:

@@ -45,14 +45,14 @@ if [[ ! -e .env  ]]; then
                 /entrypoint.sh
 
     # create-mas-secrets
-    docker exec --rm --env-file .env \
+    docker run --rm --env-file .env \
                 -v ./data/mas:/data:rw \
                 -u $USER_ID:$GROUP_ID \
                 ghcr.io/element-hq/matrix-authentication-service:latest \
                 config generate -o /data/config.yaml.default
 
     # init
-    docker exec --rm --env-file .env \
+    docker run --rm --env-file .env \
                 -v ./secrets:/secrets \
                 -v ./data:/data \
                 -v ./data-template:/data-template \
