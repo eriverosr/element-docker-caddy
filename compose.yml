@@ -77,7 +77,7 @@ services:
       caddy_0: ${HOMESERVER_FQDN}:8448
       caddy_0.reverse_proxy: "{{ upstreams 8008 }}"
       caddy_1: ${DOMAIN}
-      caddy_1.@well-known: "match_regex ^/.well-known/(matrix|element)"
+      caddy_1.@well-known: "path_regexp ^/.well-known/(matrix|element)"
       caddy_1.handle: "@well-known"
       caddy_1.handle.root: "* /www/.well-known"
       caddy_1.handle.file_server: ""
@@ -109,7 +109,7 @@ services:
       caddy_1: ${MAS_FQDN}
       caddy_1.reverse_proxy: "{{ upstreams 8080 }}"
       caddy_2: ${HOMESERVER_FQDN}:8448
-      caddy_2.@mas: "match_regex /_matrix/client/(.*)/(login|logout|refresh)"
+      caddy_2.@mas: "path_regexp /_matrix/client/(.*)/(login|logout|refresh)"
       caddy_2.reverse_proxy: "@mas {{ upstreams 8080}}"
     networks:
       - backend
@@ -216,10 +216,10 @@ services:
     entrypoint: [ "/start.py", "run", "--config-path=/data/homeserver.yaml", "--config-path=/data/workers/synapse-generic-worker-1.yaml" ]
     labels:
       caddy: ${HOMESERVER_FQDN}:8448
-      caddy.@sync: "match_regex ^/_matrix/client/(r0|v3)/sync$"
-      caddy.@events: "match_regex ^/_matrix/client/(api/v1|r0|v3)/events$"
-      caddy.@initial-sync: "match_regex ^/_matrix/client/(api/v1|r0|v3)/initialSync$"
-      caddy.@initial-sync-rooms: "match_regex ^/_matrix/client/(api/v1|r0|v3)/rooms/[^/]+/initialSync$"
+      caddy.@sync: "path_regexp ^/_matrix/client/(r0|v3)/sync$"
+      caddy.@events: "path_regexp ^/_matrix/client/(api/v1|r0|v3)/events$"
+      caddy.@initial-sync: "path_regexp ^/_matrix/client/(api/v1|r0|v3)/initialSync$"
+      caddy.@initial-sync-rooms: "path_regexp ^/_matrix/client/(api/v1|r0|v3)/rooms/[^/]+/initialSync$"
       caddy.1_reverse_proxy: "@sync {{ upstreams 8081 }}"
       caddy.2_reverse_proxy: "@events {{ upstreams 8081 }}"
       caddy.3_reverse_proxy: "@initial-sync {{ upstreams 8081 }}"
