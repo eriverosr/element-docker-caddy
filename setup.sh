@@ -22,7 +22,9 @@ if [[ ! -e .env  ]]; then
     sed -ri.orig "s/^GROUP_ID=/GROUP_ID=$(id -g)/" .env
 
     read -p "Enter base domain name (e.g. example.com): " DOMAIN
-    sed -ri.orig "s/example.com/$DOMAIN/" .env
+
+    sed -ri.orig "s/example.com/$DOMAIN/g" .env
+    sed -ri.orig "s/\$DOMAIN/$DOMAIN/g" .env
 
     # try to guess your livekit IP
     if [ -x "$(command -v getent)" ]; then
@@ -35,8 +37,6 @@ if [[ ! -e .env  ]]; then
     set -a
     source .env
     set +a
-
-    sed -ri.orig "s/\$DOMAIN/$DOMAIN/g" .env
 
     # create-synapse-secrets
     docker run --rm --env-file .env \
