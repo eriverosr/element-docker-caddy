@@ -23,8 +23,7 @@ if [[ ! -e .env  ]]; then
 
     read -p "Enter base domain name (e.g. example.com): " DOMAIN
 
-    sed -ri.orig "s/example.com/$DOMAIN/g" .env
-    sed -ri.orig "s/\$DOMAIN/$DOMAIN/g" .env
+    sed -ri.orig "s/REPLACE_WITH_DOMAIN/$DOMAIN/g" .env
 
     # try to guess your livekit IP
     if [ -x "$(command -v getent)" ]; then
