@@ -23,7 +23,6 @@ if [[ ! -e .env  ]]; then
 
     read -p "Enter base domain name (e.g. example.com): " DOMAIN
     sed -ri.orig "s/example.com/$DOMAIN/" .env
-    sed -ri.orig "s/\$DOMAIN/$DOMAIN/" .env
 
     # try to guess your livekit IP
     if [ -x "$(command -v getent)" ]; then
@@ -36,6 +35,8 @@ if [[ ! -e .env  ]]; then
     set -a
     source .env
     set +a
+
+    sed -ri.orig "s/\$DOMAIN/$DOMAIN/g" .env
 
     # create-synapse-secrets
     docker run --rm --env-file .env \
