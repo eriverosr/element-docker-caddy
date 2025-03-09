@@ -38,7 +38,7 @@ if [[ ! -e .env  ]]; then
 
     # create-synapse-secrets
     docker run --rm --env-file .env \
-                -v /data/synapse:/data \
+                -v ./data/synapse:/data \
                 -v ./init/generate-synapse-secrets.sh:/entrypoint.sh \
                 -e SYNAPSE_CONFIG_DIR=/data \
                 -e SYNAPSE_CONFIG_PATH=/data/homeserver.yaml.default \
