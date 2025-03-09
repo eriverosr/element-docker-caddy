@@ -3,7 +3,6 @@ networks:
   caddy:
     external: true
 
-
 secrets:
   postgres_password:
     file: secrets/postgres/postgres_password
@@ -80,7 +79,7 @@ services:
       caddy_1: ${DOMAIN}
       caddy_1.@well-known: "match_regex ^/.well-known/(matrix|element)"
       caddy_1.handle: "@well-known"
-      caddy_1.handle.root: "* /www/.well-known" 
+      caddy_1.handle.root: "* /www/.well-known"
       caddy_1.handle.file_server: ""
     volumes:
       - ./data/synapse:/data/:rw
@@ -271,4 +270,4 @@ services:
       - synapse
 
 volumes:
-  - caddy_data
+  caddy_data:
