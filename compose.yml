@@ -97,8 +97,6 @@ services:
         condition: service_started
       postgres:
         condition: service_healthy
-      init:
-        condition: service_completed_successfully
 
   mas:
     image: ghcr.io/element-hq/matrix-authentication-service:latest
@@ -121,8 +119,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      init:
-        condition: service_completed_successfully
 
   element-web:
     image: vectorim/element-web:latest
@@ -140,9 +136,6 @@ services:
       - caddy
     volumes:
       - ./data/element-web/config.json:/app/config.json
-    depends_on:
-      init:
-        condition: service_completed_successfully
 
   element-call:
     image: ghcr.io/element-hq/element-call:latest-ci
@@ -155,9 +148,6 @@ services:
       - caddy
     volumes:
       - ./data/element-call/config.json:/app/config.json
-    depends_on:
-      init:
-        condition: service_completed_successfully
 
   livekit:
     image: livekit/livekit-server:latest
