@@ -9,9 +9,6 @@ set -e
 # by this point, synapse & mas should generated default config files & secrets
 # via generate-synapse-secrets.sh and generate-mas-secrets.sh
 
-apk update
-apk add yq bash envsubst
-
 if [[ ! -s /secrets/synapse/signing.key ]] # TODO: check for existence of other secrets?
 then
 	# extract synapse secrets from the config and move them into ./secrets

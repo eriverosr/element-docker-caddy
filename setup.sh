@@ -56,13 +56,14 @@ if [[ ! -e .env  ]]; then
                 config generate -o /data/config.yaml.default
 
     # init
+    docker build -t matrix-init ./init
     docker run --rm --env-file .env \
                 -v ./secrets:/secrets \
                 -v ./data:/data \
                 -v ./data-template:/data-template \
                 -v ./init/init.sh:/init.sh \
                 -u $USER_ID:$GROUP_ID \
-                alpine:latest \
+                matrix-init \
                 /init.sh
     
 
