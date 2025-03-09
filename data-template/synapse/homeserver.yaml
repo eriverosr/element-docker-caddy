@@ -73,7 +73,7 @@ background_updates:
 email:
   smtp_host: ${SMTP_HOST}
   smtp_port: ${SMTP_PORT}
-  enable_tls: false
+  enable_tls: true
   notif_from: "Your %(app)s homeserver <${MAIL_NOTIF_FROM_ADDRESS}>"
   app_name: Matrix
   enable_notifs: true

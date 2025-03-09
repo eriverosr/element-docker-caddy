@@ -1,12 +1,12 @@
 #!/bin/bash
 
 set -e
-#set -x
+set -x
 
 # set up data & secrets dir with the right ownerships in the default location
 # to stop docker autocreating them with random owners.
 # originally these were checked into the git repo, but that's pretty ugly, so doing it here instead.
-mkdir -p data/{element-{web,call},livekit,mas,nginx/{ssl,www,conf.d},postgres,synapse}
+mkdir -p data/{element-{web,call},livekit,mas,www,postgres,synapse}
 mkdir -p secrets/{livekit,postgres,synapse}
 
 # create blank secrets to avoid docker creating empty directories in the host
@@ -32,38 +32,40 @@ if [[ ! -e .env  ]]; then
         fi
     fi
 
-    # SSL setup
-    read -p "Use local mkcert CA for SSL? [y/n] " use_mkcert
-    if [[ "$use_mkcert" =~ ^[Yy]$ ]]; then
-	if ! [ -x "$(command -v mkcert)" ]; then
-            echo "Please install mkcert from brew/apt/yum etc"
-	    exit
-        fi
-        mkcert -install
-        mkcert $DOMAIN '*.'$DOMAIN
-        mkdir -p data/ssl
-        mv ${DOMAIN}+1.pem data/ssl/fullchain.pem
-        mv ${DOMAIN}+1-key.pem data/ssl/privkey.pem
-        cp "$(mkcert -CAROOT)"/rootCA.pem data/ssl/ca-certificates.crt
-        # borrow letsencrypt's SSL config
-        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf > "data/ssl/options-ssl-nginx.conf"
-        curl -s https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem > "data/ssl/ssl-dhparams.pem"
-        success=true
-    else
-        read -p "Use letsencrypt for SSL? [y/n] " use_letsencrypt
-        if [[ "$use_letsencrypt" =~ ^[Yy]$ ]]; then
-	    mkdir -p data/ssl
-            touch data/ssl/ca-certificates.crt # will get overwritten by init-letsencrypt.sh
-            source ./init-letsencrypt.sh
-            success=true
-        else
-            echo "Please put a valid {privkey,fullchain}.pem and ca-certificates.crt into data/ssl/"
-        fi
-    fi
+    # create-synapse-secrets
+    docker exec --rm --env-file .env \
+                -v /data/synapse:/data \
+                -v ./init/generate-synapse-secrets.sh:/entrypoint.sh \
+                -e SYNAPSE_CONFIG_DIR=/data \
+                -e SYNAPSE_CONFIG_PATH=/data/homeserver.yaml.default \
+                -e SYNAPSE_SERVER_NAME=${DOMAIN} \
+                -e SYNAPSE_REPORT_STATS=${REPORT_STATS} \
+                -u $USER_ID:$GROUP_ID \
+                ghcr.io/element-hq/synapse:latest \
+                /entrypoint.sh
+
+    # create-mas-secrets
+    docker exec --rm --env-file .env \
+                -v ./data/mas:/data:rw \
+                -u $USER_ID:$GROUP_ID \
+                ghcr.io/element-hq/matrix-authentication-service:latest \
+                config generate -o /data/config.yaml.default
+
+    # init
+    docker exec --rm --env-file .env \
+                -v ./secrets:/secrets \
+                -v ./data:/data \
+                -v ./data-template:/data-template \
+                -v ./init/init.sh:/init.sh \
+                -u $USER_ID:$GROUP_ID \
+                alpine:latest \
+                /init.sh
+    
+
 else
     echo ".env already exists; move it out of the way first to re-setup"
 fi
 
 if ! [ -z "$success" ]; then
-    echo ".env and SSL configured; you can now docker compose up"
+    echo ".env and configfiles configured; you can now docker compose up"
 fi
