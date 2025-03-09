@@ -45,8 +45,8 @@ if [[ ! -e .env  ]]; then
                 -e SYNAPSE_SERVER_NAME=${DOMAIN} \
                 -e SYNAPSE_REPORT_STATS=${REPORT_STATS} \
                 -u $USER_ID:$GROUP_ID \
-                ghcr.io/element-hq/synapse:latest \
-                /entrypoint.sh
+                --entrypoint /entrypoint.sh \
+                ghcr.io/element-hq/synapse:latest
 
     # create-mas-secrets
     docker run --rm --env-file .env \
